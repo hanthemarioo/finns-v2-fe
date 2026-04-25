@@ -12,15 +12,6 @@ export function createFlockTableColumns(onEdit: (flock: Flock) => void): TableCo
             label: "Flock Name",
             render: (val) => <span className="font-medium text-gray-900">{val}</span>,
         },
-        // {
-        //     key: "type",
-        //     label: "Type",
-        //     render: (val) => (
-        //         <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">
-        //             {val}
-        //         </span>
-        //     ),
-        // },
         { key: "house_code", label: "Kode kandang" },
         { key: "age_in_day", label: "Umur dalam hari" },
         { key: "strain", label: "Strain" },

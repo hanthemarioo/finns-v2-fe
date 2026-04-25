@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { login } from '@/lib/auth';
 import Link from "next/link";
 import { useState } from "react";
-import Input from '@/components/form/Input';
 import Button from '@/components/form/Button';
+import { Input } from '@/components/form/Input';
 
 type FormDataType = {
     email: string;
