@@ -6,7 +6,7 @@ import { Flock } from "@/types/flock";
 
 export function createFlockTableColumns(onEdit: (flock: Flock) => void): TableColumn<Flock>[] {
     return [
-        { key: "id", label: "ID" },
+        // { key: "id", label: "ID" },
         {
             key: "name",
             label: "Flock Name",

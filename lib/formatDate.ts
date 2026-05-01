@@ -9,7 +9,7 @@ export function formatDate(isoString: string | null | undefined): string {
         day: "2-digit",
         month: "short",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        // hour: "2-digit",
+        // minute: "2-digit",
     }).format(date);
 }

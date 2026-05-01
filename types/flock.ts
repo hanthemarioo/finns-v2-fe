@@ -15,4 +15,5 @@ export type Flock = {
     closing_reason: string | null;
     created_at: string;
     coops: any[];
+    farm: Farm;
 };

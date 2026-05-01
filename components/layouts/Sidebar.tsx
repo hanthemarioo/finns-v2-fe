@@ -38,15 +38,15 @@ const MENU: MenuItem[] = [
         icon: "layers",
         href: "/flocks",
     },
-    // {
-    //     label: "Produksi",
-    //     icon: "plus-circle",
-    //     key: "produksi",
-    //     children: [
-    //         { label: "Fase Layer", href: "/production/layer" },
-    //         { label: "Fase Grower", href: "/production/grower" },
-    //     ],
-    // },
+    {
+        label: "Produksi",
+        icon: "plus-circle",
+        key: "produksi",
+        children: [
+            { label: "Fase Layer", href: "/production/layers" },
+            { label: "Fase Grower", href: "/production/growers" },
+        ],
+    },
     // {
     //     label: "Lokasi",
     //     icon: "home",

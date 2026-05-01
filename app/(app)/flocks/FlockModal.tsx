@@ -48,11 +48,11 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
             try {
                 // Sesuaikan endpoint ini dengan endpoint API list farm kamu
                 const res = await fetch("/api/proxy/farms");
-                
+
                 if (res.ok) {
                     const data = (await res.json()).data;
                     const options = data.map((farm: Farm) => ({
-                        label: farm.name,
+                        label: `${farm.name} - (${farm.type})`,
                         value: farm.id.toString(),
                     }));
                     setFarmOptions(options);
@@ -162,7 +162,15 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                 )}
 
                 <div className="space-y-4 flex-1">
-                    <Select
+                    {isEditing ? <Input
+                        readOnly
+                        label="Pilih Farm"
+                        name="farm_id"
+                        value={flock.farm.name}
+                        onChange={handleChange}
+                        placeholder="-- Pilih Farm --"
+                        required
+                    /> : <Select
                         label="Pilih Farm"
                         name="farm_id"
                         value={form.farm_id}
@@ -170,7 +178,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                         options={farmOptions}
                         placeholder="-- Pilih Farm --"
                         required
-                    />
+                    />}
 
                     <Input
                         label="Nama Flock"
@@ -183,6 +191,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
 
                     <div className="grid grid-cols-2 gap-4">
                         <Input
+                            readOnly={isEditing}
                             label="House Code"
                             name="house_code"
                             value={form.house_code}
@@ -191,6 +200,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                             required
                         />
                         <Input
+                            readOnly={isEditing}
                             type="date"
                             label="Start Date"
                             name="start_date"
@@ -202,6 +212,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
 
                     <div className="grid grid-cols-2 gap-4">
                         <Input
+                            readOnly={isEditing}
                             type="number"
                             label="Age in Day"
                             name="age_in_day"
@@ -220,6 +231,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                             required
                         /> */}
                         <Input
+                            readOnly={isEditing}
                             label="Strain"
                             name="strain"
                             value={form.strain}
@@ -233,7 +245,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
 
                     {/* Bagian Dynamic Coops */}
                     <div className="space-y-3">
-                        <div className="flex gap-2">
+                        {!isEditing && <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={handleAddCoop}
@@ -248,7 +260,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                             >
                                 Reset Kandang
                             </button>
-                        </div>
+                        </div>}
 
                         <div className="space-y-2 mt-4">
                             {coops.map((coop, index) => (
@@ -260,6 +272,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
                                         {coop.name}
                                     </div>
                                     <input
+                                        readOnly={isEditing}
                                         type="number"
                                         min="0"
                                         className="flex-1 px-4 py-2 text-sm outline-none focus:bg-gray-50 transition-colors"

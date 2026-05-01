@@ -91,6 +91,9 @@ export function DataTable<T extends Record<string, any>>({
                 key={row.id || rowIndex}
                 className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
             >
+                <td key={`col-index`} className="p-4 text-sm text-gray-700 whitespace-nowrap">
+                    {++rowIndex}
+                </td>
                 {columns.map((col, colIndex) => (
                     <td key={`col-${colIndex}`} className="p-4 text-sm text-gray-700 whitespace-nowrap">
                         {renderCell(row, col)}
@@ -107,6 +110,12 @@ export function DataTable<T extends Record<string, any>>({
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200">
+                                <th
+                                    key={`header-index`}
+                                    className="p-4 text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    No
+                                </th>
                                 {columns.map((col, idx) => (
                                     <th
                                         key={`header-${idx}`}

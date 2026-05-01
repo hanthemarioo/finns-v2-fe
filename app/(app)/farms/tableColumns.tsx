@@ -6,7 +6,7 @@ import { Farm } from "@/types/farm";
 
 export function createFarmTableColumns(onEdit: (farm: Farm) => void): TableColumn<Farm>[] {
     return [
-        { key: "id", label: "ID" },
+        // { key: "id", label: "ID" },
         {
             key: "name",
             label: "Farm Name",
