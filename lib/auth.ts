@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export const API_PREFIX = '/api/v1';
 
 function setCookie(name: string, value: string, days = 1) {
@@ -49,9 +49,6 @@ export const login = async (email: string, password: string) => {
 
     const data = await res.json();
 
-    // console.log([data, { user: JSON.stringify(data.user) }]);
-    // return
-
     setCookie('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user))
 };
@@ -85,7 +82,6 @@ export const logout = async () => {
             'Content-Type': 'application/json',
         },
     });
-    console.log(await res.json());
 
     if (!res.ok) {
         const errorData = await res.json();

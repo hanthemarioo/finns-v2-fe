@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { register } from '@/lib/auth';
 import Link from "next/link";
 import { useState } from "react";
-import Input from '@/components/form/Input';
+import { Input } from '@/components/form/Input';
 import Button from '@/components/form/Button';
 
 type FormDataType = {
