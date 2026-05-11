@@ -2,6 +2,7 @@
 
 import { TableColumn } from "@/components/ui/DataTable";
 import { formatDate } from "@/lib/formatDate";
+import { Coop } from "@/types/coop";
 import { LayerProduction } from "@/types/layer-production";
 
 export function createLayerProductionTableColumns(onEdit: (layerProduction: LayerProduction) => void): TableColumn<LayerProduction>[] {
@@ -17,49 +18,49 @@ export function createLayerProductionTableColumns(onEdit: (layerProduction: Laye
         {
             key: "coop",
             label: "Peternakan",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.flock.farm.name}</span>
             )
         },
         {
             key: "coop",
             label: "Nama Flock",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.flock.name}</span>
             )
         },
         {
             key: "coop",
             label: "Kandang",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.name}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Layak Jual",
-            render: (value: any) => (
+            render: (value: LayerProduction) => (
                 <span>{value.marketable_eggs_count}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Sortir",
-            render: (value: any) => (
+            render: (value: LayerProduction) => (
                 <span>{value.sorted_eggs_count}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Busuk",
-            render: (value: any) => (
+            render: (value: LayerProduction) => (
                 <span>{value.spoiled_eggs_count}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Rusak",
-            render: (value: any) => (
+            render: (value: LayerProduction) => (
                 <span>{value.broken_eggs_count}</span>
             )
         },

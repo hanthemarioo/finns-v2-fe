@@ -12,13 +12,6 @@ interface FlockModalProps {
     onSuccess: () => void;
 }
 
-// Pisahkan opsi ke constant agar rapi
-const Flock_TYPE_OPTIONS: Option[] = [
-    { label: "Loghmann Black", value: "Loghmann Black" }, // Disesuaikan dengan payload
-    { label: "Layer", value: "layer" },
-    { label: "Grower", value: "grower" },
-];
-
 export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
     const isEditing = !!flock;
     const [submitting, setSubmitting] = useState(false);
@@ -132,8 +125,8 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
             }
 
             onSuccess(); // Refresh & tutup modal
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setSubmitting(false);
         }

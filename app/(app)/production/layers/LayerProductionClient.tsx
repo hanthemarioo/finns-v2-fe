@@ -9,10 +9,11 @@ import { createLayerProductionTableColumns } from "./tableColumns";
 import { LayerProduction } from "@/types/layer-production";
 import Button from "@/components/form/Button";
 import { LayerProductionModal } from "./LayerProductionModal";
+import { PaginationType } from "@/types/pagination";
 
 interface LayerProductionClientProps {
     initialData: LayerProduction[];
-    pagination: any;
+    pagination: PaginationType<LayerProduction>;
 }
 
 export function LayerProductionClient({ initialData, pagination }: LayerProductionClientProps) {

@@ -2,6 +2,7 @@
 
 import { TableColumn } from "@/components/ui/DataTable";
 import { formatDate } from "@/lib/formatDate";
+import { Coop } from "@/types/coop";
 import { GrowerProduction } from "@/types/grower-production";
 
 export function createGrowerProductionTableColumns(onEdit: (growerProduction: GrowerProduction) => void): TableColumn<GrowerProduction>[] {
@@ -17,21 +18,21 @@ export function createGrowerProductionTableColumns(onEdit: (growerProduction: Gr
         {
             key: "coop",
             label: "Peternakan",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.flock.farm.name}</span>
             )
         },
         {
             key: "coop",
             label: "Nama Flock",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.flock.name}</span>
             )
         },
         {
             key: "coop",
             label: "Kandang",
-            render: (value: any) => (
+            render: (value: Coop) => (
                 <span className="font-medium text-gray-900">{value.name}</span>
             )
         },

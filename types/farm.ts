@@ -1,5 +1,7 @@
 // types/farm.ts
 
+import { Coop } from "./coop";
+
 export type Farm = {
     id: number;
     name: string;
@@ -8,5 +10,5 @@ export type Farm = {
     capacity: number;
     owner_id: number;
     created_at: string;
-    coops: any[]; // Contoh handling array
+    coops: Coop[];
 };

@@ -9,10 +9,11 @@ import { createFlockTableColumns } from "./tableColumns";
 import { Flock } from "@/types/flock";
 import { FlockModal } from "./FlockModal";
 import Button from "@/components/form/Button";
+import { PaginationType } from "@/types/pagination";
 
 interface FlockClientProps {
     initialData: Flock[];
-    pagination: any;
+    pagination: PaginationType<Flock>;
 }
 
 export function FlockClient({ initialData, pagination }: FlockClientProps) {

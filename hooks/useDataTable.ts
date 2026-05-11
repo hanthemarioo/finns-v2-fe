@@ -65,8 +65,8 @@ export function useDataTable<T>(apiEndpoint: string) {
                 total: result.total,
                 links: result.links,
             });
-        } catch (err: any) {
-            setError(err.message || "An unexpected error occurred");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setLoading(false);
         }

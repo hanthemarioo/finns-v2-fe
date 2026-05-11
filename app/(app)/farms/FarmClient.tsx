@@ -9,10 +9,11 @@ import { createFarmTableColumns } from "./tableColumns";
 import { Farm } from "@/types/farm";
 import { FarmModal } from "./FarmModal";
 import Button from "@/components/form/Button";
+import { PaginationType } from "@/types/pagination";
 
 interface FarmClientProps {
     initialData: Farm[];
-    pagination: any;
+    pagination: PaginationType<Farm>;
 }
 
 export function FarmClient({ initialData, pagination }: FarmClientProps) {

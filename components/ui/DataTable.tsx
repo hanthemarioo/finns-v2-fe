@@ -1,12 +1,23 @@
 // components/ui/DataTable.tsx
 
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Pagination } from "./Pagination";
+
+type CellRenderer<T> = {
+    render(value: never, row: T): React.ReactNode;
+}["render"];
 
 export type TableColumn<T> = {
     key: keyof T | string;
     label: string;
-    render?: (value: any, row: T) => React.ReactNode;
+    render?: CellRenderer<T>;
+};
+
+type PaginationLink = {
+    url: string | null;
+    label: string;
+    page: number | string | null;
+    active: boolean;
 };
 
 type DataTableProps<T> = {
@@ -15,7 +26,7 @@ type DataTableProps<T> = {
     loading?: boolean;
     error?: string | null;
     pagination?: {
-        links: any[];
+        links: PaginationLink[];
         total: number;
         current_page: number;
         last_page: number;
@@ -23,7 +34,7 @@ type DataTableProps<T> = {
     onPageChange?: (page: number) => void;
 };
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends object>({
     data,
     columns,
     loading = false,
@@ -33,24 +44,33 @@ export function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
 
     // Helper safe get (support nested object strings e.g., 'owner.name')
-    const getNestedValue = (obj: T, path: string) => {
-        return path.split(".").reduce((acc, part) => acc && acc[part], obj as any);
-    };
+    const getNestedValue = useCallback((obj: T, path: string): unknown => {
+        return path.split(".").reduce<unknown>((acc, part) => {
+            if (!acc || typeof acc !== "object") return undefined;
+            return (acc as Record<string, unknown>)[part];
+        }, obj);
+    }, []);
 
     // Helper safe render (handling objects/arrays without breaking React)
-    const renderCell = (row: T, col: TableColumn<T>) => {
+    const renderCell = useCallback((row: T, col: TableColumn<T>) => {
         const rawValue = getNestedValue(row, col.key as string);
 
         if (col.render) {
-            return col.render(rawValue, row);
+            return col.render(rawValue as never, row);
         }
 
         if (rawValue === null || rawValue === undefined) return <span className="text-gray-400">-</span>;
         if (typeof rawValue === "object") return JSON.stringify(rawValue);
         if (typeof rawValue === "boolean") return rawValue ? "Yes" : "No";
+        if (typeof rawValue === "string" || typeof rawValue === "number") return rawValue;
 
-        return rawValue;
-    };
+        return String(rawValue);
+    }, [getNestedValue]);
+
+    const paginationLinks = pagination?.links.map((link) => ({
+        ...link,
+        page: typeof link.page === "string" ? Number(link.page) || null : link.page,
+    }));
 
     const TableContent = useMemo(() => {
         if (loading) {
@@ -88,7 +108,7 @@ export function DataTable<T extends Record<string, any>>({
 
         return data.map((row, rowIndex) => (
             <tr
-                key={row.id || rowIndex}
+                key={getNestedValue(row, "id")?.toString() || rowIndex}
                 className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
             >
                 <td key={`col-index`} className="p-4 text-sm text-gray-700 whitespace-nowrap">
@@ -101,7 +121,7 @@ export function DataTable<T extends Record<string, any>>({
                 ))}
             </tr>
         ));
-    }, [data, columns, loading, error]);
+    }, [data, columns, loading, error, getNestedValue, renderCell]);
 
     return (
         <div className="w-full flex flex-col space-y-4">
@@ -139,7 +159,7 @@ export function DataTable<T extends Record<string, any>>({
                         Showing <span className="font-semibold text-gray-900">{data.length}</span> items
                         (Total: <span className="font-semibold text-gray-900">{pagination.total}</span>)
                     </div>
-                    <Pagination links={pagination.links} onPageChange={onPageChange} />
+                    <Pagination links={paginationLinks ?? []} onPageChange={onPageChange} />
                 </div>
             )}
         </div>

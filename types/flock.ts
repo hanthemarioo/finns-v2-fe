@@ -1,5 +1,6 @@
 // types/flock.ts
 
+import { Coop } from "./coop";
 import { Farm } from "./farm";
 
 export type Flock = {
@@ -14,6 +15,6 @@ export type Flock = {
     closed_at: string | null;
     closing_reason: string | null;
     created_at: string;
-    coops: any[];
+    coops: Coop[];
     farm: Farm;
 };

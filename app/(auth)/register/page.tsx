@@ -25,8 +25,8 @@ export default function RegisterPage() {
             const data = await register(formData.name, formData.email, formData.password, formData.password_confirmation);
             console.log('Registrasi berhasil:', data);
             router.push('/dashboard');
-        } catch (err: any) {
-            setError(err.message || 'Registrasi gagal.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         }
     };
 

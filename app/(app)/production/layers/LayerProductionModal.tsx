@@ -265,8 +265,8 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
             }
 
             onSuccess(); // Refresh & tutup modal
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setSubmitting(false);
         }

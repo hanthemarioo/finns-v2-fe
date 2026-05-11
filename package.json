@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "chart.js": "^4.4.9",
+    "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "feather-icons-react": "^0.9.0",
     "next": "15.3.8",

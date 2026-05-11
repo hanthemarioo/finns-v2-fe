@@ -34,9 +34,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             await logout();
             console.log('Logout berhasil');
             router.push('/login');
-        } catch (err: any) {
-            // setError(err.message || 'Login gagal.');
-            console.log('Logout gagal:', err);
+        } catch (err: unknown) {
+            console.log(err instanceof Error ? err.message : 'Unknown error');
         }
     };
 

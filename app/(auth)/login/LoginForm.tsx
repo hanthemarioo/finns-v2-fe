@@ -27,8 +27,8 @@ export default function LoginForm() {
             await login(formData.email, formData.password);
             console.log('Login berhasil');
             router.push('/dashboard');
-        } catch (err: any) {
-            setError(err.message || 'Login gagal.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         }
 
         setLoading(false);

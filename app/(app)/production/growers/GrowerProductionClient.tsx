@@ -9,10 +9,11 @@ import { createGrowerProductionTableColumns } from "./tableColumns";
 import { GrowerProduction } from "@/types/grower-production";
 import Button from "@/components/form/Button";
 import { GrowerProductionModal } from "./GrowerProductionModal";
+import { PaginationType } from "@/types/pagination";
 
 interface GrowerProductionClientProps {
     initialData: GrowerProduction[];
-    pagination: any;
+    pagination: PaginationType<GrowerProduction>;
 }
 
 export function GrowerProductionClient({ initialData, pagination }: GrowerProductionClientProps) {

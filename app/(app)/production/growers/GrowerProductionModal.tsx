@@ -243,8 +243,8 @@ export function GrowerProductionModal({ growerProduction, onClose, onSuccess }: 
             }
 
             onSuccess(); // Refresh & tutup modal
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setSubmitting(false);
         }
