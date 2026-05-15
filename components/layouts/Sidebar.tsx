@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavItem } from "./NavItem";
 import { Dropdown } from "./Dropdown";
@@ -16,6 +16,7 @@ type MenuItem = {
     icon: FeatherIconName;
     href?: string;
     key?: string;
+    roles?: string[];
     children?: {
         label: string;
         href: string;
@@ -32,11 +33,19 @@ const MENU: MenuItem[] = [
         label: "Farm",
         icon: "home",
         href: "/farms",
+        roles: ["super_admin", "admin"],
+    },
+    {
+        label: "Users",
+        icon: "users",
+        href: "/users",
+        roles: ["super_admin"],
     },
     {
         label: "Flock",
         icon: "layers",
         href: "/flocks",
+        roles: ["super_admin", "admin"],
     },
     {
         label: "Produksi",
@@ -48,16 +57,6 @@ const MENU: MenuItem[] = [
         ],
     },
     // {
-    //     label: "Lokasi",
-    //     icon: "home",
-    //     href: "/location",
-    // },
-    // {
-    //     label: "Flock",
-    //     icon: "layers",
-    //     href: "/flock",
-    // },
-    // {
     //     label: "Report",
     //     icon: "file-text",
     //     key: "report",
@@ -66,18 +65,18 @@ const MENU: MenuItem[] = [
     //         { label: "Report Fase Grower", href: "/report/grower" },
     //     ],
     // },
-    // {
-    //     label: "Users",
-    //     icon: "users",
-    //     href: "/users",
-    // },
 ];
 
 export default function Sidebar({ isOpen }: SidebarProps) {
     const pathname = usePathname();
+    const [role, setRole] = useState<string | null>(null);
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
         {}
     );
+
+    const visibleMenu = useMemo(() => {
+        return MENU.filter((item) => !item.roles || (role && item.roles.includes(role)));
+    }, [role]);
 
     const isActive = (path: string) => pathname.startsWith(path);
 
@@ -92,7 +91,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     useEffect(() => {
         const updated: Record<string, boolean> = {};
 
-        MENU.forEach((item) => {
+        visibleMenu.forEach((item) => {
             if (item.children && item.key) {
                 updated[item.key] = item.children.some((child) =>
                     pathname.startsWith(child.href)
@@ -101,7 +100,14 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         });
 
         setOpenDropdowns(updated);
-    }, [pathname]);
+    }, [pathname, visibleMenu]);
+
+    useEffect(() => {
+        const data = localStorage.getItem("user");
+        if (data) {
+            setRole(JSON.parse(data)?.role ?? null);
+        }
+    }, []);
 
     return (
         <aside
@@ -115,7 +121,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         >
             <div className="h-full px-2 pb-4 overflow-y-auto text-md">
                 <ul className="space-y-2 font-medium">
-                    {MENU.map((item) => {
+                    {visibleMenu.map((item) => {
                         // dropdown
                         if (item.children && item.key) {
                             return (

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl
     const isGuestRoute = ['/login', '/register'].some(path => pathname.startsWith(path))
-    const isProtectedRoute = ['/dashboard', '/farms', '/flocks'].some(path => pathname.startsWith(path))
+    const isProtectedRoute = ['/dashboard', '/farms', '/flocks', '/production', '/users'].some(path => pathname.startsWith(path))
 
     const hasToken = req.cookies.get('token');
 
@@ -27,5 +27,7 @@ export const config = {
         '/dashboard/:path*',
         '/farms/:path*',
         '/flocks/:path*',
+        '/production/:path*',
+        '/users/:path*',
     ],
 }

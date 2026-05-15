@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { DataTable } from "@/components/ui/DataTable";
 import { createFarmTableColumns } from "./tableColumns";
@@ -10,6 +10,7 @@ import { Farm } from "@/types/farm";
 import { FarmModal } from "./FarmModal";
 import Button from "@/components/form/Button";
 import { PaginationType } from "@/types/pagination";
+import { User } from "@/types/user";
 
 interface FarmClientProps {
     initialData: Farm[];
@@ -23,6 +24,8 @@ export function FarmClient({ initialData, pagination }: FarmClientProps) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const openModal = (farm: Farm | null = null) => {
         setEditingFarm(farm);
@@ -34,19 +37,53 @@ export function FarmClient({ initialData, pagination }: FarmClientProps) {
         router.refresh(); // Refresh halaman (Memicu SSR fetch ulang secara transparan di background)
     };
 
+    const handleDelete = useCallback(async (farm: Farm) => {
+        const confirmed = window.confirm(`Hapus user ${farm.name}?`);
+        if (!confirmed) return;
+
+        setError(null);
+
+        try {
+            const res = await fetch(`/api/proxy/users/${farm.id}`, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData?.message || "Gagal menghapus user.");
+            }
+
+            router.refresh();
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Unknown error");
+        }
+    }, [router]);
+
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("page", page.toString());
         router.push(`${pathname}?${params.toString()}`);
     };
 
-    const columns = useMemo(() => createFarmTableColumns(openModal), []);
+    // const columns = useMemo(() => createFarmTableColumns(openModal, user), []);
+    const columns = useMemo(() => {
+        return createFarmTableColumns(openModal, handleDelete, user);
+    }, [user]);
+
+    useEffect(() => {
+        const data = localStorage.getItem("user");
+        if (data) {
+            setUser(JSON.parse(data));
+        }
+    }, [])
 
     return (
         <>
-            <div className="text-end">
-                <Button text="+ add farm" onClick={() => openModal(null)} />
-            </div>
+            {user?.role === 'super_admin' && (
+                <div className="text-end">
+                    <Button text="+ add farm" onClick={() => openModal(null)} />
+                </div>
+            )}
 
             <DataTable
                 data={initialData}

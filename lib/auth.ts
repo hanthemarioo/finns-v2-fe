@@ -65,13 +65,15 @@ export const register = async (name: string, email: string, password: string, pa
         body: JSON.stringify({ name, email, password, password_confirmation }),
     });
 
-
     if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Registrasi gagal');
     }
 
-    return await res.json();
+    const data = await res.json();
+
+    setCookie('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user))
 };
 
 export const logout = async () => {

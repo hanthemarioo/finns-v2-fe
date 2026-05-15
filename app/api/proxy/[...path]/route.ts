@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const LARAVEL_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1` || "http://localhost:8000/api/v1";
+const LARAVEL_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
+    : "http://localhost:8000/api/v1";
 
 async function getHeaders(): Promise<HeadersInit> {
     const cookieStore = await cookies();
@@ -104,6 +106,34 @@ export async function PUT(
         });
     } catch (error) {
         console.error("[PROXY_POST_ERROR]", error);
+        return NextResponse.json(
+            { message: "Internal Server Error Proxying Request" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ path: string[] }> }
+) {
+    try {
+        const resolvedParams = await params;
+        const pathString = resolvedParams.path.join("/");
+        const targetUrl = `${LARAVEL_BASE_URL}/${pathString}`;
+
+        const response = await fetch(targetUrl, {
+            method: "DELETE",
+            headers: await getHeaders(),
+        });
+
+        const data = await response.json();
+        return NextResponse.json(data, {
+            status: response.status,
+            statusText: response.statusText,
+        });
+    } catch (error) {
+        console.error("[PROXY_DELETE_ERROR]", error);
         return NextResponse.json(
             { message: "Internal Server Error Proxying Request" },
             { status: 500 }

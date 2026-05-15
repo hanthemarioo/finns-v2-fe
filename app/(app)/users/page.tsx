@@ -1,0 +1,48 @@
+// app/users/page.tsx
+
+import { cookies } from "next/headers";
+import FeatherIcon from "feather-icons-react";
+import { UserClient } from "./UserClient";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export default async function UserPage() {
+    const res = await fetch(`${API_BASE_URL}/api/v1/users`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${(await cookies()).get("token")?.value}`,
+        },
+        cache: "no-store",
+    });
+
+    const result = res.ok ? await res.json() : null;
+    const data = result?.data || [];
+
+    return (
+        <div className="min-h-screen p-6 sm:p-10">
+            <div className="max-w-7xl mx-auto space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="bg-orange-500 p-3 rounded-lg">
+                        <FeatherIcon icon="users" className="text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                            User Management
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Manage admin and user input accounts.
+                        </p>
+                    </div>
+                </div>
+
+                {!res.ok && res.status === 403 ? (
+                    <div className="bg-white border border-red-100 rounded-xl p-6 text-sm text-red-600">
+                        Kamu tidak memiliki akses ke halaman ini.
+                    </div>
+                ) : (
+                    <UserClient initialData={data} pagination={result} />
+                )}
+            </div>
+        </div>
+    );
+}

@@ -17,17 +17,20 @@ type FormDataType = {
 export default function RegisterPage() {
     const [formData, setFormData] = useState<FormDataType>({ name: '', email: '', password: '', password_confirmation: '' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true)
         try {
-            const data = await register(formData.name, formData.email, formData.password, formData.password_confirmation);
-            console.log('Registrasi berhasil:', data);
+            await register(formData.name, formData.email, formData.password, formData.password_confirmation);
+            console.log('Registrasi berhasil:');
             router.push('/dashboard');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Unknown error');
         }
+        setLoading(false)
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +88,7 @@ export default function RegisterPage() {
                                 autoComplete='password_confirmation'
                                 placeholder='Password'
                             />
-                            <Button type="submit" text='Daftar' />
+                            <Button type="submit" text={loading ? 'Wait...' : 'Daftar'} disabled={loading} />
                             <p className="text-sm font-medium text-gray-600">
                                 Sudah punya akun?
                                 <Link
