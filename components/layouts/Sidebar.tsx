@@ -56,15 +56,14 @@ const MENU: MenuItem[] = [
             { label: "Fase Grower", href: "/production/growers" },
         ],
     },
-    // {
-    //     label: "Report",
-    //     icon: "file-text",
-    //     key: "report",
-    //     children: [
-    //         { label: "Report Fase Layer", href: "/report/layer" },
-    //         { label: "Report Fase Grower", href: "/report/grower" },
-    //     ],
-    // },
+    {
+        label: "Report",
+        icon: "file-text",
+        key: "report",
+        children: [
+            { label: "Report Fase Layer", href: "/report/layers" },
+        ],
+    },
 ];
 
 export default function Sidebar({ isOpen }: SidebarProps) {
