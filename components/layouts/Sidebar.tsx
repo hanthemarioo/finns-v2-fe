@@ -62,6 +62,7 @@ const MENU: MenuItem[] = [
         key: "report",
         children: [
             { label: "Report Fase Layer", href: "/report/layers" },
+            { label: "Report Fase Grower", href: "/report/growers" },
         ],
     },
 ];
