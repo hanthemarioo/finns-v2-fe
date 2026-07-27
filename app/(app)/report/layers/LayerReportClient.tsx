@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { DataTable } from "@/components/ui/DataTable";
@@ -77,6 +77,8 @@ export function LayerReportClient({
     const [flockOptions, setFlockOptions] = useState(flocks);
     const [coopOptions, setCoopOptions] = useState(coops);
     const [loadingKey, setLoadingKey] = useState<"flock" | "coop" | null>(null);
+    const [filterError, setFilterError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
 
     const columns = useMemo(() => createLayerReportTableColumns(), []);
 
@@ -122,6 +124,8 @@ export function LayerReportClient({
         const nextFarmId = String(formData.get("farm_id") ?? "");
         const nextPeriodType = String(formData.get("period_type") ?? "30_days") as ReportPeriodType;
 
+        setFilterError(null);
+
         if (nextFarmId) params.set("farm_id", nextFarmId);
         params.set("period_type", nextPeriodType);
 
@@ -135,12 +139,19 @@ export function LayerReportClient({
             const startDate = String(formData.get("start_date") ?? "");
             const endDate = String(formData.get("end_date") ?? "");
 
+            if (!startDate || !endDate) {
+                setFilterError("Start Date dan End Date wajib diisi untuk periode custom.");
+                return;
+            }
+
             if (startDate) params.set("start_date", startDate);
             if (endDate) params.set("end_date", endDate);
         }
 
-        router.push(`${pathname}?${params.toString()}`);
-        router.refresh();
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`);
+            router.refresh();
+        });
     };
 
     return (
@@ -236,9 +247,10 @@ export function LayerReportClient({
                 <div className="flex items-end gap-2 md:col-span-6">
                     <button
                         type="submit"
-                        className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+                        disabled={isPending}
+                        className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        Apply Filter
+                        {isPending ? "Loading..." : "Apply Filter"}
                     </button>
                     <a
                         href="/report/layers"
@@ -248,6 +260,12 @@ export function LayerReportClient({
                     </a>
                 </div>
             </form>
+
+            {filterError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {filterError}
+                </div>
+            )}
 
             {error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
