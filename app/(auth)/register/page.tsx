@@ -5,6 +5,7 @@ import { register } from '@/lib/auth';
 import Link from "next/link";
 import { useState } from "react";
 import { Input } from '@/components/form/Input';
+import { PasswordInput } from '@/components/form/PasswordInput';
 import Button from '@/components/form/Button';
 
 type FormDataType = {
@@ -66,26 +67,24 @@ export default function RegisterPage() {
                                 error={!formData.email && error ? 'Email wajib diisi' : ''}
                                 placeholder='Email'
                             />
-                            <Input
+                            <PasswordInput
                                 label="Password"
                                 name="password"
-                                type="password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
                                 error={!formData.password && error ? 'Password wajib diisi' : ''}
-                                autoComplete='password'
+                                autoComplete='new-password'
                                 placeholder='Password'
                             />
-                            <Input
+                            <PasswordInput
                                 label="Konfirmasi Password"
                                 name="password_confirmation"
-                                type="password"
                                 value={formData.password_confirmation}
                                 onChange={handleChange}
                                 required
                                 error={!formData.password_confirmation && error ? 'Password wajib diisi' : ''}
-                                autoComplete='password_confirmation'
+                                autoComplete='new-password'
                                 placeholder='Password'
                             />
                             <Button type="submit" text={loading ? 'Wait...' : 'Daftar'} disabled={loading} />

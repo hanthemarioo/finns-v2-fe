@@ -1,6 +1,7 @@
 "use client"
 
 import { ChartPoint } from "../types/dashboard";
+import { formatDate } from "@/lib/formatDate";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -30,7 +31,7 @@ interface FeedChartProps {
 
 export default function FeedChart({ data }: FeedChartProps) {
     const chartData = {
-        labels: data.map((item) => item.date ?? item.label ?? ""),
+        labels: data.map((item) => item.date ? formatDate(item.date) : item.label ?? ""),
 
         datasets: [
             {

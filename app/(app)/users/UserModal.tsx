@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/form/Input";
+import { PasswordInput } from "@/components/form/PasswordInput";
 import { Option, Select } from "@/components/form/Select";
 import { Farm } from "@/types/farm";
 import { User } from "@/types/user";
@@ -169,12 +170,12 @@ export function UserModal({ user, onClose, onSuccess }: UserModalProps) {
                         placeholder="-- Pilih Farm --"
                     />
 
-                    <Input
+                    <PasswordInput
                         label={isEditing ? "Password Baru" : "Password"}
                         name="password"
-                        type="password"
                         value={form.password}
                         onChange={handleChange}
+                        autoComplete="new-password"
                         placeholder={isEditing ? "Kosongkan jika tidak diganti" : "Minimal 8 karakter"}
                         required={!isEditing}
                     />

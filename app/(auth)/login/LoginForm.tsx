@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import Button from '@/components/form/Button';
 import { Input } from '@/components/form/Input';
+import { PasswordInput } from '@/components/form/PasswordInput';
 
 type FormDataType = {
     email: string;
@@ -22,6 +23,7 @@ export default function LoginForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
         try {
             await login(formData.email, formData.password);
@@ -29,9 +31,8 @@ export default function LoginForm() {
             router.push('/dashboard');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Unknown error');
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,26 +48,36 @@ export default function LoginForm() {
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <p className="text-xl font-semibold text-center mb-6 text-gray-900">Si Ternak</p>
                     <form className="space-y-5" onSubmit={handleSubmit}>
-                        <Input
-                            label="Alamat Email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            error={!formData.email && error ? 'Email wajib diisi' : ''}
-                            placeholder='Email'
-                        />
-                        <Input
-                            label="Kata Sandi"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            error={!formData.password && error ? 'Password wajib diisi' : ''}
-                            autoComplete='password'
-                            placeholder='●●●●●●●●'
-                        />
+                        <div>
+                            <Input
+                                label="Alamat Email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                error={!formData.email && error ? 'Email wajib diisi' : ''}
+                                placeholder='Email'
+                            />
+                        </div>
+
+                        <div>
+                            <PasswordInput
+                                label="Kata Sandi"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                error={!formData.password && error ? 'Password wajib diisi' : ''}
+                                autoComplete='current-password'
+                                placeholder='●●●●●●●●'
+                            />
+                            {error && (
+                                <div>
+                                    <span className='text-red-500 text-sm'>{error}</span>
+                                </div>
+                            )}
+                        </div>
+
                         <Button type="submit" text={loading ? 'Login...' : 'Masuk'} disabled={loading} />
                         <p className="text-sm font-medium text-gray-600">
                             Belum punya akun?
