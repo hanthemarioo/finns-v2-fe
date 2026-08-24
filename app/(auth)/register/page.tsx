@@ -1,3 +1,13 @@
+import { redirect } from "next/navigation";
+
+export default function RegisterPage() {
+    redirect("/login");
+}
+
+/*
+Registration is intentionally disabled because users should be created from User Management.
+The old self-registration page is kept here for reference if the feature is needed again.
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -102,3 +112,4 @@ export default function RegisterPage() {
         </section >
     )
 }
+*/

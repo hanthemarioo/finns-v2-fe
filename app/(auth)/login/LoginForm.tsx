@@ -3,7 +3,8 @@
 import React from 'react'
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/auth';
-import Link from "next/link";
+// Registration link is disabled because users are managed by admins, not self-registered.
+// import Link from "next/link";
 import { useState } from "react";
 import Button from '@/components/form/Button';
 import { Input } from '@/components/form/Input';
@@ -79,13 +80,14 @@ export default function LoginForm() {
                         </div>
 
                         <Button type="submit" text={loading ? 'Login...' : 'Masuk'} disabled={loading} />
-                        <p className="text-sm font-medium text-gray-600">
+                        {/* Registration is disabled because users should be created from User Management. */}
+                        {/* <p className="text-sm font-medium text-gray-600">
                             Belum punya akun?
                             <Link
                                 href="/register"
                                 className="text-blue-600 underline ms-1"
                             >Daftar disini</Link>
-                        </p>
+                        </p> */}
                     </form>
                 </div>
             </div>
