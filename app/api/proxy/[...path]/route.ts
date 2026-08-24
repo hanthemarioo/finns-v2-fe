@@ -37,10 +37,32 @@ export async function GET(
             headers: await getHeaders(),
         });
 
-        const data = await response.json();
-        return NextResponse.json(data, {
+        const contentType = response.headers.get("content-type") ?? "application/json";
+
+        if (contentType.includes("application/json")) {
+            const data: unknown = await response.json();
+            return NextResponse.json(data, {
+                status: response.status,
+                statusText: response.statusText,
+            });
+        }
+
+        const responseHeaders = new Headers({ "Content-Type": contentType });
+        const contentDisposition = response.headers.get("content-disposition");
+        const contentLength = response.headers.get("content-length");
+
+        if (contentDisposition) {
+            responseHeaders.set("Content-Disposition", contentDisposition);
+        }
+
+        if (contentLength) {
+            responseHeaders.set("Content-Length", contentLength);
+        }
+
+        return new NextResponse(response.body, {
             status: response.status,
             statusText: response.statusText,
+            headers: responseHeaders,
         });
     } catch (error) {
         console.error("[PROXY_GET_ERROR]", error);

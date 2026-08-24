@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ReportExportButtons } from "@/components/report/ReportExportButtons";
 import { DataTable } from "@/components/ui/DataTable";
 import type {
     GrowerReportFilters,
@@ -278,6 +279,17 @@ export function GrowerReportClient({
                     Some requested report fields are not available in the current database schema.
                 </div>
             )}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-gray-500">
+                    {rows.length} data laporan sesuai filter aktif
+                </p>
+                <ReportExportButtons
+                    reportType="grower"
+                    filters={filters}
+                    disabled={isPending || !filters.farm_id || rows.length === 0}
+                />
+            </div>
 
             <DataTable
                 data={rows}
