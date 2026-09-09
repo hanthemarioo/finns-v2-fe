@@ -75,6 +75,8 @@ export function LayerReportClient({
     const [flockId, setFlockId] = useState(filters.flock_id ?? "");
     const [coopId, setCoopId] = useState(filters.coop_id ?? "");
     const [periodType, setPeriodType] = useState<ReportPeriodType>(filters.period_type);
+    const [startDate, setStartDate] = useState(filters.start_date ?? "");
+    const [endDate, setEndDate] = useState(filters.end_date ?? "");
     const [flockOptions, setFlockOptions] = useState(flocks);
     const [coopOptions, setCoopOptions] = useState(coops);
     const [loadingKey, setLoadingKey] = useState<"flock" | "coop" | null>(null);
@@ -82,6 +84,7 @@ export function LayerReportClient({
     const [isPending, startTransition] = useTransition();
 
     const columns = useMemo(() => createLayerReportTableColumns(), []);
+    const hasInvalidDateRange = periodType === "custom" && startDate !== "" && endDate !== "" && startDate > endDate;
 
     const handleFarmChange = async (event: ChangeEvent<HTMLSelectElement>) => {
         const nextFarmId = event.target.value;
@@ -142,6 +145,11 @@ export function LayerReportClient({
 
             if (!startDate || !endDate) {
                 setFilterError("Start Date dan End Date wajib diisi untuk periode custom.");
+                return;
+            }
+
+            if (startDate > endDate) {
+                setFilterError("Start Date tidak boleh lebih besar dari End Date.");
                 return;
             }
 
@@ -211,7 +219,10 @@ export function LayerReportClient({
                     <select
                         name="period_type"
                         value={periodType}
-                        onChange={(event) => setPeriodType(event.target.value as ReportPeriodType)}
+                        onChange={(event) => {
+                            setPeriodType(event.target.value as ReportPeriodType);
+                            setFilterError(null);
+                        }}
                         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                     >
                         <option value="7_days">Last 7 days</option>
@@ -228,8 +239,16 @@ export function LayerReportClient({
                             <input
                                 name="start_date"
                                 type="date"
-                                defaultValue={filters.start_date}
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                                value={startDate}
+                                max={endDate || undefined}
+                                aria-invalid={hasInvalidDateRange}
+                                onChange={(event) => {
+                                    setStartDate(event.target.value);
+                                    setFilterError(null);
+                                }}
+                                className={`w-full rounded-lg border px-3 py-2 text-sm ${
+                                    hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
+                                }`}
                             />
                         </label>
 
@@ -238,8 +257,16 @@ export function LayerReportClient({
                             <input
                                 name="end_date"
                                 type="date"
-                                defaultValue={filters.end_date}
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                                value={endDate}
+                                min={startDate || undefined}
+                                aria-invalid={hasInvalidDateRange}
+                                onChange={(event) => {
+                                    setEndDate(event.target.value);
+                                    setFilterError(null);
+                                }}
+                                className={`w-full rounded-lg border px-3 py-2 text-sm ${
+                                    hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
+                                }`}
                             />
                         </label>
                     </>

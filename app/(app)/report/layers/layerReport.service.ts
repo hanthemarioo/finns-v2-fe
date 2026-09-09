@@ -75,6 +75,13 @@ function first(value: string | string[] | undefined) {
     return Array.isArray(value) ? value[0] : value;
 }
 
+function isDateInputValue(value: string | undefined): value is string {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 function periodTypeOf(value: string | undefined): ReportPeriodType {
     return value === "7_days" || value === "14_days" || value === "custom"
         ? value
@@ -89,14 +96,19 @@ export async function getLayerReportPageData(
     const selectedFlockId = first(searchParams.flock_id) || "";
     const selectedCoopId = first(searchParams.coop_id) || "";
     const periodType = periodTypeOf(first(searchParams.period_type));
+    const requestedStartDate = first(searchParams.start_date);
+    const requestedEndDate = first(searchParams.end_date);
+    const startDate = isDateInputValue(requestedStartDate) ? requestedStartDate : undefined;
+    const endDate = isDateInputValue(requestedEndDate) ? requestedEndDate : undefined;
+    const normalizedEndDate = startDate && endDate && startDate > endDate ? startDate : endDate;
 
     const filters: LayerReportFilters = {
         farm_id: selectedFarmId,
         flock_id: selectedFlockId,
         coop_id: selectedCoopId,
         period_type: periodType,
-        start_date: first(searchParams.start_date),
-        end_date: first(searchParams.end_date),
+        start_date: startDate,
+        end_date: normalizedEndDate,
     };
 
     const [flocks, coops] = await Promise.all([
