@@ -7,6 +7,12 @@ import { Option, Select } from "@/components/form/Select";
 import { Farm } from "@/types/farm";
 import { Flock } from "@/types/flock";
 import { Coop } from "@/types/coop";
+import {
+    firstProductionError,
+    type ProductionFieldErrors,
+    type ProductionFieldRule,
+    validateProductionFields,
+} from "../productionValidation";
 
 interface LayerProductionModalProps {
     layerProduction: LayerProduction | null;
@@ -34,11 +40,32 @@ type FormState = {
 };
 
 type SelectField = "farm_id" | "flock_id" | "coop_id";
+type FormField = keyof FormState & string;
+
+const layerProductionRules: ProductionFieldRule<FormField>[] = [
+    { name: "farm_id", label: "Farm", integer: true },
+    { name: "flock_id", label: "Flock", integer: true },
+    { name: "coop_id", label: "Kandang", integer: true },
+    { name: "marketable_eggs_count", label: "Jumlah Butir Utuh", integer: true, allowZero: true },
+    { name: "marketable_eggs_weight_kg", label: "Jumlah Berat Utuh Kg", allowZero: true },
+    { name: "sorted_eggs_count", label: "Jumlah Butir Sortir", integer: true, allowZero: true },
+    { name: "sorted_eggs_weight_kg", label: "Jumlah Berat Sortir Kg", allowZero: true },
+    { name: "spoiled_eggs_count", label: "Jumlah Butir Busuk", integer: true, allowZero: true },
+    { name: "spoiled_eggs_weight_kg", label: "Jumlah Berat Busuk Kg", allowZero: true },
+    { name: "broken_eggs_count", label: "Jumlah Butir Rusak", integer: true, allowZero: true },
+    { name: "broken_eggs_weight_kg", label: "Jumlah Berat Rusak Kg", allowZero: true },
+    { name: "feed_kg", label: "Pakan Kg" },
+    { name: "water_l", label: "Minum L" },
+    { name: "avg_body_weight_kg", label: "Bobot Ayam Kg" },
+    { name: "mortality_count", label: "Kematian", integer: true, allowZero: true },
+    { name: "culling_count", label: "Afkir", integer: true, allowZero: true },
+];
 
 export function LayerProductionModal({ layerProduction, onClose, onSuccess }: LayerProductionModalProps) {
     const isEditing = !!layerProduction;
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<ProductionFieldErrors<FormField>>({});
 
     // State untuk opsi farm yang didapat dari API
     const [farmOptions, setFarmOptions] = useState<Option[]>([]);
@@ -181,7 +208,7 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
         setForm((prev) => {
             const updated: FormState = {
                 ...prev,
-                [fieldName]: value as string | number,
+                [fieldName]: value,
             };
 
             if (fieldName in fieldDependencies) {
@@ -195,6 +222,13 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
             return updated;
         });
 
+        setFieldErrors((prev) => {
+            const updated = { ...prev };
+            delete updated[fieldName];
+            return updated;
+        });
+        setError(null);
+
         if (fieldName === "farm_id") {
             setFlockOptions([]);
             setCoopOptions([]);
@@ -206,29 +240,17 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
     };
 
     const handleSubmit = async () => {
-        // console.log(form);
+        const validationErrors = validateProductionFields(form, layerProductionRules);
 
-        // if (
-        //     !form.coop_id ||
-        //     !form.feed_kg ||
-        //     !form.water_l ||
-        //     !form.avg_body_weight_kg ||
-        //     !form.mortality_count ||
-        //     !form.culling_count ||
-        //     !form.marketable_eggs_count ||
-        //     !form.marketable_eggs_weight_kg ||
-        //     !form.sorted_eggs_count ||
-        //     !form.sorted_eggs_weight_kg ||
-        //     !form.spoiled_eggs_count ||
-        //     !form.spoiled_eggs_weight_kg ||
-        //     !form.broken_eggs_count ||
-        //     !form.broken_eggs_weight_kg
-        // ) {
-        //     return setError("Semua field utama wajib diisi.");
-        // }
+        if (Object.keys(validationErrors).length > 0) {
+            setFieldErrors(validationErrors);
+            setError(firstProductionError(validationErrors) ?? "Periksa kembali field produksi.");
+            return;
+        }
 
         setSubmitting(true);
         setError(null);
+        setFieldErrors({});
 
         // Susun payload sesuai dengan struktur JSON yang diminta
         const payload = {
@@ -302,6 +324,7 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         onChange={handleChange}
                         options={farmOptions}
                         placeholder="-- Pilih Farm --"
+                        error={fieldErrors.farm_id}
                         required
                     />
 
@@ -312,6 +335,7 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         onChange={handleChange}
                         options={flockOptions}
                         placeholder="-- Pilih Flock --"
+                        error={fieldErrors.flock_id}
                         required
                     />
 
@@ -322,6 +346,7 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         onChange={handleChange}
                         options={coopOptions}
                         placeholder="-- Pilih Kandang --"
+                        error={fieldErrors.coop_id}
                         required
                     />
 
@@ -333,6 +358,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.marketable_eggs_count}
                             onChange={handleChange}
                             placeholder="Contoh: 100"
+                            min={0}
+                            step={1}
+                            error={fieldErrors.marketable_eggs_count}
                             required
                         />
                         <Input
@@ -342,6 +370,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.marketable_eggs_weight_kg}
                             onChange={handleChange}
                             placeholder="Contoh: 5.50"
+                            min={0}
+                            step="any"
+                            error={fieldErrors.marketable_eggs_weight_kg}
                             required
                         />
                     </div>
@@ -354,6 +385,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.sorted_eggs_count}
                             onChange={handleChange}
                             placeholder="Contoh: 5"
+                            min={0}
+                            step={1}
+                            error={fieldErrors.sorted_eggs_count}
                             required
                         />
                         <Input
@@ -363,6 +397,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.sorted_eggs_weight_kg}
                             onChange={handleChange}
                             placeholder="Contoh: 0.50"
+                            min={0}
+                            step="any"
+                            error={fieldErrors.sorted_eggs_weight_kg}
                             required
                         />
                     </div>
@@ -375,6 +412,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.spoiled_eggs_count}
                             onChange={handleChange}
                             placeholder="Contoh: 5"
+                            min={0}
+                            step={1}
+                            error={fieldErrors.spoiled_eggs_count}
                             required
                         />
                         <Input
@@ -384,6 +424,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.spoiled_eggs_weight_kg}
                             onChange={handleChange}
                             placeholder="Contoh: 0.50"
+                            min={0}
+                            step="any"
+                            error={fieldErrors.spoiled_eggs_weight_kg}
                             required
                         />
                     </div>
@@ -396,6 +439,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.broken_eggs_count}
                             onChange={handleChange}
                             placeholder="Contoh: 5"
+                            min={0}
+                            step={1}
+                            error={fieldErrors.broken_eggs_count}
                             required
                         />
                         <Input
@@ -405,6 +451,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                             value={form.broken_eggs_weight_kg}
                             onChange={handleChange}
                             placeholder="Contoh: 0.50"
+                            min={0}
+                            step="any"
+                            error={fieldErrors.broken_eggs_weight_kg}
                             required
                         />
                     </div>
@@ -416,6 +465,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         value={form.feed_kg}
                         onChange={handleChange}
                         placeholder="Contoh: 50.20"
+                        min={0.01}
+                        step="any"
+                        error={fieldErrors.feed_kg}
                         required
                     />
 
@@ -426,6 +478,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         value={form.water_l}
                         onChange={handleChange}
                         placeholder="Contoh: 50.20"
+                        min={0.01}
+                        step="any"
+                        error={fieldErrors.water_l}
                         required
                     />
 
@@ -436,6 +491,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         value={form.avg_body_weight_kg}
                         onChange={handleChange}
                         placeholder="Contoh: 2.500"
+                        min={0.01}
+                        step="any"
+                        error={fieldErrors.avg_body_weight_kg}
                         required
                     />
 
@@ -446,6 +504,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         value={form.mortality_count}
                         onChange={handleChange}
                         placeholder="Contoh: 0"
+                        min={0}
+                        step={1}
+                        error={fieldErrors.mortality_count}
                         required
                     />
 
@@ -456,6 +517,9 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
                         value={form.culling_count}
                         onChange={handleChange}
                         placeholder="Contoh: 0"
+                        min={0}
+                        step={1}
+                        error={fieldErrors.culling_count}
                         required
                     />
                 </div>
