@@ -18,17 +18,30 @@ function today() {
     return new Date().toISOString().slice(0, 10);
 }
 
+function isDateInputValue(value: string | undefined): value is string {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 function firstDayOfMonth(date: string) {
     return `${date.slice(0, 8)}01`;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
     const params = await searchParams;
-    const endDate = first(params.end_date) || today();
+    const requestedEndDate = first(params.end_date);
+    const endDate = isDateInputValue(requestedEndDate) ? requestedEndDate : today();
+    const requestedStartDate = first(params.start_date);
+    const fallbackStartDate = firstDayOfMonth(endDate);
+    const startDate = isDateInputValue(requestedStartDate) ? requestedStartDate : fallbackStartDate;
+    const normalizedEndDate = startDate > endDate ? startDate : endDate;
+
     const filters: DashboardFilterValues = {
         type: first(params.type) || "layer",
-        start_date: first(params.start_date) || firstDayOfMonth(endDate),
-        end_date: endDate,
+        start_date: startDate,
+        end_date: normalizedEndDate,
         farm_id: first(params.farm_id),
         flock_id: first(params.flock_id),
         coop_id: first(params.coop_id),

@@ -10,6 +10,7 @@ import {
     Tooltip,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { formatDate } from "@/lib/formatDate";
 import { ChartPoint } from "../types/dashboard";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -24,7 +25,7 @@ function eggValue(item: ChartPoint) {
 
 export default function EggChart({ data }: EggChartProps) {
     const chartData = {
-        labels: data.map((item) => item.date ?? item.label ?? ""),
+        labels: data.map((item) => item.date ? formatDate(item.date) : item.label ?? ""),
         datasets: [
             {
                 label: "Egg Production",

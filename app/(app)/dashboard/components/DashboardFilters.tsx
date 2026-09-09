@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import type { DashboardFilters, SelectOption } from "../types/dashboard";
 
 type DashboardFiltersProps = {
@@ -49,6 +49,8 @@ async function fetchOptions(path: string, query: Record<string, string>) {
 
 export default function DashboardFilters({ filters, farms, flocks, coops }: DashboardFiltersProps) {
     const [type, setType] = useState(filters.type);
+    const [startDate, setStartDate] = useState(filters.start_date);
+    const [endDate, setEndDate] = useState(filters.end_date);
     const [farmId, setFarmId] = useState(filters.farm_id ?? "");
     const [flockId, setFlockId] = useState(filters.flock_id ?? "");
     const [coopId, setCoopId] = useState(filters.coop_id ?? "");
@@ -56,6 +58,14 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
     const [flockOptions, setFlockOptions] = useState(flocks);
     const [coopOptions, setCoopOptions] = useState(coops);
     const [loadingKey, setLoadingKey] = useState<"farm" | "flock" | "coop" | null>(null);
+
+    const hasInvalidDateRange = startDate !== "" && endDate !== "" && startDate > endDate;
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        if (!hasInvalidDateRange) return;
+
+        event.preventDefault();
+    };
 
     const handleTypeChange = async (event: ChangeEvent<HTMLSelectElement>) => {
         const nextType = event.target.value;
@@ -106,7 +116,7 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
     };
 
     return (
-        <form className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-6">
+        <form onSubmit={handleSubmit} className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-6">
             <label className="space-y-1 text-sm font-medium text-gray-700">
                 Type
                 <select name="type" value={type} onChange={handleTypeChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
@@ -117,12 +127,32 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
 
             <label className="space-y-1 text-sm font-medium text-gray-700">
                 Start Date
-                <input name="start_date" type="date" defaultValue={filters.start_date} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                <input
+                    name="start_date"
+                    type="date"
+                    value={startDate}
+                    max={endDate || undefined}
+                    aria-invalid={hasInvalidDateRange}
+                    onChange={(event) => setStartDate(event.target.value)}
+                    className={`w-full rounded-lg border px-3 py-2 text-sm ${
+                        hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
+                    }`}
+                />
             </label>
 
             <label className="space-y-1 text-sm font-medium text-gray-700">
                 End Date
-                <input name="end_date" type="date" defaultValue={filters.end_date} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                <input
+                    name="end_date"
+                    type="date"
+                    value={endDate}
+                    min={startDate || undefined}
+                    aria-invalid={hasInvalidDateRange}
+                    onChange={(event) => setEndDate(event.target.value)}
+                    className={`w-full rounded-lg border px-3 py-2 text-sm ${
+                        hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
+                    }`}
+                />
             </label>
 
             <label className="space-y-1 text-sm font-medium text-gray-700">
@@ -163,6 +193,12 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
                     Reset
                 </a>
             </div>
+
+            {hasInvalidDateRange && (
+                <p className="text-sm font-medium text-red-600 md:col-span-6">
+                    Start Date tidak boleh lebih besar dari End Date.
+                </p>
+            )}
         </form>
     );
 }

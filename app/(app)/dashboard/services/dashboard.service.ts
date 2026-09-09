@@ -47,23 +47,25 @@ function objectOf(result: Record<string, unknown> | { data?: Record<string, unkn
     return result as Record<string, unknown>;
 }
 
+function dashboardQuery(filters: DashboardFilters): Record<string, QueryValue> {
+    return {
+        type: filters.type,
+        start_date: filters.start_date,
+        end_date: filters.end_date,
+        farm_id: filters.farm_id,
+        flock_id: filters.flock_id,
+        coop_id: filters.coop_id,
+    };
+}
+
 export async function getDashboardData(filters: DashboardFilters): Promise<DashboardData> {
+    const query = dashboardQuery(filters);
+
     const [summary, feed, mortality, egg, farms, flocks, coops] = await Promise.all([
-        fetchJson<Record<string, unknown> | { data?: Record<string, unknown> }>("dashboard/summary", {
-            type: filters.type,
-            start_date: filters.start_date,
-            end_date: filters.end_date,
-        }),
-        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/feed-chart", {
-            farm_id: filters.farm_id,
-            flock_id: filters.flock_id,
-        }),
-        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/mortality-chart", {
-            coop_id: filters.coop_id,
-        }),
-        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/egg-chart", {
-            type: filters.type,
-        }),
+        fetchJson<Record<string, unknown> | { data?: Record<string, unknown> }>("dashboard/summary", query),
+        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/feed-chart", query),
+        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/mortality-chart", query),
+        fetchJson<ChartPoint[] | { data?: ChartPoint[] }>("dashboard/egg-chart", query),
         fetchJson<SelectOption[] | { data?: SelectOption[] }>("farms", { type: filters.type }),
         filters.farm_id
             ? fetchJson<SelectOption[] | { data?: SelectOption[] }>("flocks", { farm_id: filters.farm_id })
