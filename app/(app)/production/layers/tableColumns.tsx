@@ -3,7 +3,7 @@
 import { TableColumn } from "@/components/ui/DataTable";
 import { formatDate } from "@/lib/formatDate";
 import { Coop } from "@/types/coop";
-import { LayerProduction } from "@/types/layer-production";
+import { LayerEggProduction, LayerProduction } from "@/types/layer-production";
 
 export function createLayerProductionTableColumns(onEdit: (layerProduction: LayerProduction) => void): TableColumn<LayerProduction>[] {
     return [
@@ -39,29 +39,29 @@ export function createLayerProductionTableColumns(onEdit: (layerProduction: Laye
         {
             key: "daily_egg_production",
             label: "Telur Layak Jual",
-            render: (value: LayerProduction) => (
-                <span>{value.marketable_eggs_count}</span>
+            render: (value: LayerEggProduction | null) => (
+                <span>{value?.marketable_eggs_count ?? "-"}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Sortir",
-            render: (value: LayerProduction) => (
-                <span>{value.sorted_eggs_count}</span>
+            render: (value: LayerEggProduction | null) => (
+                <span>{value?.sorted_eggs_count ?? "-"}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Busuk",
-            render: (value: LayerProduction) => (
-                <span>{value.spoiled_eggs_count}</span>
+            render: (value: LayerEggProduction | null) => (
+                <span>{value?.spoiled_eggs_count ?? "-"}</span>
             )
         },
         {
             key: "daily_egg_production",
             label: "Telur Rusak",
-            render: (value: LayerProduction) => (
-                <span>{value.broken_eggs_count}</span>
+            render: (value: LayerEggProduction | null) => (
+                <span>{value?.broken_eggs_count ?? "-"}</span>
             )
         },
         {

@@ -42,6 +42,10 @@ type FormState = {
 type SelectField = "farm_id" | "flock_id" | "coop_id";
 type FormField = keyof FormState & string;
 
+function fieldValue(value: string | number | null | undefined) {
+    return value === null || value === undefined ? "" : String(value);
+}
+
 const layerProductionRules: ProductionFieldRule<FormField>[] = [
     { name: "farm_id", label: "Farm", integer: true },
     { name: "flock_id", label: "Flock", integer: true },
@@ -63,6 +67,7 @@ const layerProductionRules: ProductionFieldRule<FormField>[] = [
 
 export function LayerProductionModal({ layerProduction, onClose, onSuccess }: LayerProductionModalProps) {
     const isEditing = !!layerProduction;
+    const eggProduction = layerProduction?.daily_egg_production;
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState<ProductionFieldErrors<FormField>>({});
@@ -77,19 +82,19 @@ export function LayerProductionModal({ layerProduction, onClose, onSuccess }: La
         farm_id: layerProduction?.coop?.flock?.farm?.id.toString() || "",
         flock_id: layerProduction?.coop?.flock?.id.toString() || "",
         coop_id: layerProduction?.coop_id?.toString() || "",
-        feed_kg: layerProduction?.feed_kg ?? "",
-        water_l: layerProduction?.water_l ?? "",
-        avg_body_weight_kg: layerProduction?.avg_body_weight_kg ?? "",
-        mortality_count: layerProduction?.mortality_count ?? "",
-        culling_count: layerProduction?.culling_count ?? "",
-        marketable_eggs_count: layerProduction?.marketable_eggs_count ?? "",
-        marketable_eggs_weight_kg: layerProduction?.marketable_eggs_weight_kg ?? "",
-        sorted_eggs_count: layerProduction?.sorted_eggs_count ?? "",
-        sorted_eggs_weight_kg: layerProduction?.sorted_eggs_weight_kg ?? "",
-        spoiled_eggs_count: layerProduction?.spoiled_eggs_count ?? "",
-        spoiled_eggs_weight_kg: layerProduction?.spoiled_eggs_weight_kg ?? "",
-        broken_eggs_count: layerProduction?.broken_eggs_count ?? "",
-        broken_eggs_weight_kg: layerProduction?.broken_eggs_weight_kg ?? "",
+        feed_kg: fieldValue(layerProduction?.feed_kg),
+        water_l: fieldValue(layerProduction?.water_l),
+        avg_body_weight_kg: fieldValue(layerProduction?.avg_body_weight_kg),
+        mortality_count: fieldValue(layerProduction?.mortality_count),
+        culling_count: fieldValue(layerProduction?.culling_count),
+        marketable_eggs_count: fieldValue(eggProduction?.marketable_eggs_count ?? layerProduction?.marketable_eggs_count),
+        marketable_eggs_weight_kg: fieldValue(eggProduction?.marketable_eggs_weight_kg ?? layerProduction?.marketable_eggs_weight_kg),
+        sorted_eggs_count: fieldValue(eggProduction?.sorted_eggs_count ?? layerProduction?.sorted_eggs_count),
+        sorted_eggs_weight_kg: fieldValue(eggProduction?.sorted_eggs_weight_kg ?? layerProduction?.sorted_eggs_weight_kg),
+        spoiled_eggs_count: fieldValue(eggProduction?.spoiled_eggs_count ?? layerProduction?.spoiled_eggs_count),
+        spoiled_eggs_weight_kg: fieldValue(eggProduction?.spoiled_eggs_weight_kg ?? layerProduction?.spoiled_eggs_weight_kg),
+        broken_eggs_count: fieldValue(eggProduction?.broken_eggs_count ?? layerProduction?.broken_eggs_count),
+        broken_eggs_weight_kg: fieldValue(eggProduction?.broken_eggs_weight_kg ?? layerProduction?.broken_eggs_weight_kg),
     });
 
     const fieldDependencies: Partial<Record<SelectField, SelectField[]>> = {

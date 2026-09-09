@@ -7,10 +7,10 @@ export type GrowerProduction = {
     farm_id: number;
     flock_id: number;
     coop_id: number;
-    feed_kg: string;
-    water_l: string;
-    avg_body_weight_kg: string;
-    mortality_count: string;
-    culling_count: string;
+    feed_kg: string | number;
+    water_l: string | number;
+    avg_body_weight_kg: string | number;
+    mortality_count: string | number;
+    culling_count: string | number;
     coop: Coop;
 };

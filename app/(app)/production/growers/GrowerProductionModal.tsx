@@ -34,6 +34,10 @@ type FormState = {
 type SelectField = "farm_id" | "flock_id" | "coop_id";
 type FormField = keyof FormState & string;
 
+function fieldValue(value: string | number | null | undefined) {
+    return value === null || value === undefined ? "" : String(value);
+}
+
 const growerProductionRules: ProductionFieldRule<FormField>[] = [
     { name: "farm_id", label: "Farm", integer: true },
     { name: "flock_id", label: "Flock", integer: true },
@@ -61,11 +65,11 @@ export function GrowerProductionModal({ growerProduction, onClose, onSuccess }: 
         farm_id: growerProduction?.coop?.flock?.farm?.id.toString() || "",
         flock_id: growerProduction?.coop?.flock?.id.toString() || "",
         coop_id: growerProduction?.coop_id?.toString() || "",
-        feed_kg: growerProduction?.feed_kg ?? "",
-        water_l: growerProduction?.water_l ?? "",
-        avg_body_weight_kg: growerProduction?.avg_body_weight_kg ?? "",
-        mortality_count: growerProduction?.mortality_count ?? "",
-        culling_count: growerProduction?.culling_count ?? "",
+        feed_kg: fieldValue(growerProduction?.feed_kg),
+        water_l: fieldValue(growerProduction?.water_l),
+        avg_body_weight_kg: fieldValue(growerProduction?.avg_body_weight_kg),
+        mortality_count: fieldValue(growerProduction?.mortality_count),
+        culling_count: fieldValue(growerProduction?.culling_count),
     });
 
     const fieldDependencies: Partial<Record<SelectField, SelectField[]>> = {
