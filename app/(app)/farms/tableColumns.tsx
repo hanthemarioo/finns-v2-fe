@@ -9,7 +9,7 @@ export function createFarmTableColumns(
     user: User | null
 ): TableColumn<Farm>[] {
 
-    let columns: TableColumn<Farm>[] = [
+    const columns: TableColumn<Farm>[] = [
         {
             key: "name",
             label: "Farm Name",
@@ -48,12 +48,14 @@ export function createFarmTableColumns(
                     >
                         Edit
                     </button>
-                    {/* <button
-                        onClick={() => onDelete(row)}
-                        className="px-3 py-1 text-xs rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                        Delete
-                    </button> */}
+                    {row.can_delete && (
+                        <button
+                            onClick={() => onDelete(row)}
+                            className="px-3 py-1 text-xs rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                            Delete
+                        </button>
+                    )}
                 </div>
             ),
         });

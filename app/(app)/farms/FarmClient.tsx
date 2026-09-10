@@ -38,19 +38,19 @@ export function FarmClient({ initialData, pagination }: FarmClientProps) {
     };
 
     const handleDelete = useCallback(async (farm: Farm) => {
-        const confirmed = window.confirm(`Hapus user ${farm.name}?`);
+        const confirmed = window.confirm(`Hapus farm ${farm.name}? Farm hanya dapat dihapus jika belum memiliki flock dan user terkait.`);
         if (!confirmed) return;
 
         setError(null);
 
         try {
-            const res = await fetch(`/api/proxy/users/${farm.id}`, {
+            const res = await fetch(`/api/proxy/farms/${farm.id}`, {
                 method: "DELETE",
             });
 
             if (!res.ok) {
                 const errData = await res.json();
-                throw new Error(errData?.message || "Gagal menghapus user.");
+                throw new Error(errData?.message || "Gagal menghapus farm.");
             }
 
             router.refresh();
@@ -68,7 +68,7 @@ export function FarmClient({ initialData, pagination }: FarmClientProps) {
     // const columns = useMemo(() => createFarmTableColumns(openModal, user), []);
     const columns = useMemo(() => {
         return createFarmTableColumns(openModal, handleDelete, user);
-    }, [user]);
+    }, [handleDelete, user]);
 
     useEffect(() => {
         const data = localStorage.getItem("user");
@@ -83,6 +83,12 @@ export function FarmClient({ initialData, pagination }: FarmClientProps) {
                 <div className="text-end">
                     <Button text="+ add farm" onClick={() => openModal(null)} />
                 </div>
+            )}
+
+            {error && (
+                <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    {error}
+                </p>
             )}
 
             <DataTable

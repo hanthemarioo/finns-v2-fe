@@ -14,7 +14,10 @@ export type Flock = {
     start_date: string;
     closed_at: string | null;
     closing_reason: string | null;
+    closing_note?: string | null;
     created_at: string;
+    can_delete?: boolean;
+    production_coops_count?: number;
     coops: Coop[];
     farm: Farm;
 };

@@ -116,7 +116,7 @@ export function GrowerProductionModal({ growerProduction, onClose, onSuccess }: 
 
         const fetchFlocks = async () => {
             try {
-                const res = await fetch(`/api/proxy/flocks?farm_id=${form.farm_id}`);
+                const res = await fetch(`/api/proxy/flocks?farm_id=${form.farm_id}&status=active`);
 
                 if (res.ok) {
                     const data = (await res.json()).data;

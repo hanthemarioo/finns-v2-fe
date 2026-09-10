@@ -11,4 +11,7 @@ export type Farm = {
     owner_id: number;
     created_at: string;
     coops: Coop[];
+    can_delete?: boolean;
+    flocks_count?: number;
+    users_count?: number;
 };
