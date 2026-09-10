@@ -16,7 +16,7 @@ export type TableColumn<T> = {
 type PaginationLink = {
     url: string | null;
     label: string;
-    page: number | string | null;
+    page?: number | string | null;
     active: boolean;
 };
 
@@ -30,6 +30,7 @@ type DataTableProps<T> = {
         total: number;
         current_page: number;
         last_page: number;
+        from?: number | null;
     } | null;
     onPageChange?: (page: number) => void;
 };
@@ -67,15 +68,22 @@ export function DataTable<T extends object>({
         return String(rawValue);
     }, [getNestedValue]);
 
-    const paginationLinks = pagination?.links.map((link) => ({
-        ...link,
-        page: typeof link.page === "string" ? Number(link.page) || null : link.page,
-    }));
+    const paginationLinks = pagination?.links.map((link) => {
+        const page = Number(link.page);
+
+        return {
+            ...link,
+            page: Number.isInteger(page) && page > 0 ? page : link.page,
+        };
+    });
 
     const TableContent = useMemo(() => {
         if (loading) {
             return Array.from({ length: 5 }).map((_, rowIndex) => (
                 <tr key={`skeleton-${rowIndex}`} className="border-b border-gray-100">
+                    <td className="p-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-8"></div>
+                    </td>
                     {columns.map((col, colIndex) => (
                         <td key={`skeleton-col-${colIndex}`} className="p-4">
                             <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
@@ -85,10 +93,12 @@ export function DataTable<T extends object>({
             ));
         }
 
+        const totalColumns = columns.length + 1;
+
         if (error) {
             return (
                 <tr>
-                    <td colSpan={columns.length} className="p-8 text-center text-red-500 bg-red-50">
+                    <td colSpan={totalColumns} className="p-8 text-center text-red-500 bg-red-50">
                         <p className="font-medium">Error fetching data</p>
                         <p className="text-sm mt-1">{error}</p>
                     </td>
@@ -99,7 +109,7 @@ export function DataTable<T extends object>({
         if (!data.length) {
             return (
                 <tr>
-                    <td colSpan={columns.length} className="p-8 text-center text-gray-500">
+                    <td colSpan={totalColumns} className="p-8 text-center text-gray-500">
                         No data available.
                     </td>
                 </tr>
@@ -112,7 +122,7 @@ export function DataTable<T extends object>({
                 className="border-b border-gray-100 hover:bg-gray-50 transition-colors group"
             >
                 <td key={`col-index`} className="p-4 text-sm text-gray-700 whitespace-nowrap">
-                    {++rowIndex}
+                    {(pagination?.from ?? 1) + rowIndex}
                 </td>
                 {columns.map((col, colIndex) => (
                     <td key={`col-${colIndex}`} className="p-4 text-sm text-gray-700 whitespace-nowrap">
@@ -121,7 +131,7 @@ export function DataTable<T extends object>({
                 ))}
             </tr>
         ));
-    }, [data, columns, loading, error, getNestedValue, renderCell]);
+    }, [data, columns, loading, error, pagination?.from, getNestedValue, renderCell]);
 
     return (
         <div className="w-full flex flex-col space-y-4">

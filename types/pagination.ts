@@ -24,7 +24,7 @@ export interface PaginationType<T> {
 // Pagination link type
 export interface PaginationLink {
     url: string | null;
-    page: string | null;
+    page?: string | number | null;
     label: string;
     active: boolean;
 }

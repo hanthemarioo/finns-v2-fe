@@ -3,13 +3,18 @@
 import { cookies } from "next/headers";
 import { FlockClient } from "./FlockClient";
 import FeatherIcon from "feather-icons-react";
+import { type PageSearchParams, paginationQuery } from "@/lib/pagination";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+type FlockPageProps = {
+    searchParams: Promise<PageSearchParams>;
+};
 
-export default async function FlockPage() {
+export default async function FlockPage({ searchParams }: FlockPageProps) {
+    const query = paginationQuery(await searchParams);
 
-    const res = await fetch(`${API_BASE_URL}/api/v1/flocks`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/flocks?${query}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${(await cookies()).get('token')?.value}`

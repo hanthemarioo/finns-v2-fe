@@ -3,13 +3,18 @@
 import { cookies } from "next/headers";
 import FeatherIcon from "feather-icons-react";
 import { LayerProductionClient } from "./LayerProductionClient";
+import { type PageSearchParams, paginationQuery } from "@/lib/pagination";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+type LayerProductionPageProps = {
+    searchParams: Promise<PageSearchParams>;
+};
 
-export default async function LayerProduuctionPage() {
+export default async function LayerProduuctionPage({ searchParams }: LayerProductionPageProps) {
+    const query = paginationQuery(await searchParams);
 
-    const res = await fetch(`${API_BASE_URL}/api/v1/layer-phases`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/layer-phases?${query}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${(await cookies()).get('token')?.value}`

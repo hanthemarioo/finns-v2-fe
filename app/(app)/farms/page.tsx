@@ -3,12 +3,18 @@
 import { cookies } from "next/headers";
 import { FarmClient } from "./FarmClient";
 import FeatherIcon from "feather-icons-react";
+import { type PageSearchParams, paginationQuery } from "@/lib/pagination";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-export default async function FarmPage() {
+type FarmPageProps = {
+    searchParams: Promise<PageSearchParams>;
+};
 
-    const res = await fetch(`${API_BASE_URL}/api/v1/farms`, {
+export default async function FarmPage({ searchParams }: FarmPageProps) {
+    const query = paginationQuery(await searchParams);
+
+    const res = await fetch(`${API_BASE_URL}/api/v1/farms?${query}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${(await cookies()).get('token')?.value}`

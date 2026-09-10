@@ -4,8 +4,8 @@ import React from "react";
 
 type Link = {
     url: string | null;
+    page?: number | string | null;
     label: string;
-    page: number | null;
     active: boolean;
 };
 
@@ -19,22 +19,57 @@ export const Pagination: React.FC<PaginationProps> = React.memo(({ links, onPage
 
     // Helper untuk membersihkan label HTML entity dari Laravel
     const cleanLabel = (label: string) => {
-        if (label.includes("Previous")) return "Prev";
-        if (label.includes("Next")) return "Next";
-        return label;
+        if (label.includes("Previous") || label.includes("&laquo;")) return "Prev";
+        if (label.includes("Next") || label.includes("&raquo;")) return "Next";
+        return label.replace(/<[^>]*>/g, "");
+    };
+
+    const pageFromUrl = (url: string | null) => {
+        if (!url) return null;
+
+        try {
+            const parsedUrl = new URL(url);
+            const page = Number(parsedUrl.searchParams.get("page"));
+            return Number.isInteger(page) && page > 0 ? page : null;
+        } catch {
+            const page = Number(new URLSearchParams(url.split("?")[1] ?? "").get("page"));
+            return Number.isInteger(page) && page > 0 ? page : null;
+        }
+    };
+
+    const resolvePage = (link: Link) => {
+        const explicitPage = Number(link.page);
+
+        if (Number.isInteger(explicitPage) && explicitPage > 0) {
+            return explicitPage;
+        }
+
+        const urlPage = pageFromUrl(link.url);
+
+        if (urlPage) {
+            return urlPage;
+        }
+
+        const labelPage = Number(cleanLabel(link.label));
+        return Number.isInteger(labelPage) && labelPage > 0 ? labelPage : null;
     };
 
     return (
         <div className="flex items-center justify-center space-x-1 mt-4 text-sm">
             {links.map((link, idx) => {
                 const disabled = !link.url && !link.active;
-                const isNumber = !isNaN(Number(link.label));
+                const label = cleanLabel(link.label);
+                const targetPage = resolvePage(link);
+                const isNumber = !Number.isNaN(Number(label));
 
                 return (
                     <button
                         key={idx}
-                        disabled={disabled}
-                        onClick={() => link.page && onPageChange(link.page)}
+                        disabled={disabled || link.active || !targetPage}
+                        onClick={() => {
+                            if (!targetPage) return;
+                            onPageChange(targetPage);
+                        }}
                         className={`
               px-3 py-1.5 rounded-md transition-colors font-medium border
               ${link.active
@@ -45,8 +80,9 @@ export const Pagination: React.FC<PaginationProps> = React.memo(({ links, onPage
                             }
               ${!isNumber ? "px-4" : ""}
             `}
-                        dangerouslySetInnerHTML={{ __html: cleanLabel(link.label) }}
-                    />
+                    >
+                        {label}
+                    </button>
                 );
             })}
         </div>
