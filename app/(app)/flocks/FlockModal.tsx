@@ -12,6 +12,17 @@ interface FlockModalProps {
     onSuccess: () => void;
 }
 
+function dateInputValue(value: string | null | undefined) {
+    if (!value) return "";
+
+    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+        return value.slice(0, 10);
+    }
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+}
+
 export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
     const isEditing = !!flock;
     const [submitting, setSubmitting] = useState(false);
@@ -27,7 +38,7 @@ export function FlockModal({ flock, onClose, onSuccess }: FlockModalProps) {
         house_code: flock?.house_code || "",
         age_in_day: flock?.age_in_day?.toString() || "",
         strain: flock?.strain || "",
-        start_date: flock?.start_date || "",
+        start_date: dateInputValue(flock?.start_date),
     });
 
     // State khusus untuk array dinamis kandang (coops)
