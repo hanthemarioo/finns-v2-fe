@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type { DashboardFilters, SelectOption } from "../types/dashboard";
 
 type DashboardFiltersProps = {
@@ -48,6 +49,9 @@ async function fetchOptions(path: string, query: Record<string, string>) {
 }
 
 export default function DashboardFilters({ filters, farms, flocks, coops }: DashboardFiltersProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+
     const [type, setType] = useState(filters.type);
     const [startDate, setStartDate] = useState(filters.start_date);
     const [endDate, setEndDate] = useState(filters.end_date);
@@ -58,19 +62,41 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
     const [flockOptions, setFlockOptions] = useState(flocks);
     const [coopOptions, setCoopOptions] = useState(coops);
     const [loadingKey, setLoadingKey] = useState<"farm" | "flock" | "coop" | null>(null);
+    const [filterError, setFilterError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
 
     const hasInvalidDateRange = startDate !== "" && endDate !== "" && startDate > endDate;
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        if (!hasInvalidDateRange) return;
-
         event.preventDefault();
+
+        if (hasInvalidDateRange) {
+            setFilterError("Start Date tidak boleh lebih besar dari End Date.");
+            return;
+        }
+
+        const params = new URLSearchParams();
+        params.set("type", type);
+
+        if (startDate) params.set("start_date", startDate);
+        if (endDate) params.set("end_date", endDate);
+        if (farmId) params.set("farm_id", farmId);
+        if (flockId) params.set("flock_id", flockId);
+        if (coopId) params.set("coop_id", coopId);
+
+        setFilterError(null);
+
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`);
+            router.refresh();
+        });
     };
 
     const handleTypeChange = async (event: ChangeEvent<HTMLSelectElement>) => {
         const nextType = event.target.value;
 
         setType(nextType);
+        setFilterError(null);
         setFarmId("");
         setFlockId("");
         setCoopId("");
@@ -85,6 +111,7 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
         const nextFarmId = event.target.value;
 
         setFarmId(nextFarmId);
+        setFilterError(null);
         setFlockId("");
         setCoopId("");
         setCoopOptions([]);
@@ -103,6 +130,7 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
         const nextFlockId = event.target.value;
 
         setFlockId(nextFlockId);
+        setFilterError(null);
         setCoopId("");
 
         if (!nextFlockId) {
@@ -133,7 +161,10 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
                     value={startDate}
                     max={endDate || undefined}
                     aria-invalid={hasInvalidDateRange}
-                    onChange={(event) => setStartDate(event.target.value)}
+                    onChange={(event) => {
+                        setStartDate(event.target.value);
+                        setFilterError(null);
+                    }}
                     className={`w-full rounded-lg border px-3 py-2 text-sm ${
                         hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
                     }`}
@@ -148,7 +179,10 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
                     value={endDate}
                     min={startDate || undefined}
                     aria-invalid={hasInvalidDateRange}
-                    onChange={(event) => setEndDate(event.target.value)}
+                    onChange={(event) => {
+                        setEndDate(event.target.value);
+                        setFilterError(null);
+                    }}
                     className={`w-full rounded-lg border px-3 py-2 text-sm ${
                         hasInvalidDateRange ? "border-red-400 bg-red-50" : "border-gray-300"
                     }`}
@@ -177,7 +211,15 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
 
             <label className="space-y-1 text-sm font-medium text-gray-700">
                 Coop
-                <select name="coop_id" value={coopId} onChange={(event) => setCoopId(event.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                <select
+                    name="coop_id"
+                    value={coopId}
+                    onChange={(event) => {
+                        setCoopId(event.target.value);
+                        setFilterError(null);
+                    }}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                >
                     <option value="">{loadingKey === "coop" ? "Loading coops..." : "All coops"}</option>
                     {coopOptions.map((coop) => (
                         <option key={coop.id} value={coop.id}>{optionLabel(coop)}</option>
@@ -186,17 +228,21 @@ export default function DashboardFilters({ filters, farms, flocks, coops }: Dash
             </label>
 
             <div className="flex items-end gap-2 md:col-span-6">
-                <button type="submit" className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600">
-                    Apply Filter
+                <button
+                    type="submit"
+                    disabled={isPending}
+                    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {isPending ? "Loading..." : "Apply Filter"}
                 </button>
                 <a href="/dashboard" className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
                     Reset
                 </a>
             </div>
 
-            {hasInvalidDateRange && (
+            {(hasInvalidDateRange || filterError) && (
                 <p className="text-sm font-medium text-red-600 md:col-span-6">
-                    Start Date tidak boleh lebih besar dari End Date.
+                    {filterError ?? "Start Date tidak boleh lebih besar dari End Date."}
                 </p>
             )}
         </form>
