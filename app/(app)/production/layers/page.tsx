@@ -1,5 +1,6 @@
 // app/production/layers/page.tsx
 
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import FeatherIcon from "feather-icons-react";
 import { LayerProductionClient } from "./LayerProductionClient";
@@ -42,8 +43,9 @@ export default async function LayerProduuctionPage({ searchParams }: LayerProduc
                     </div>
                 </div>
 
-                {/* Lempar data ke Client Component */}
-                <LayerProductionClient initialData={data} pagination={result} />
+                <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-gray-500">Loading...</div>}>
+                    <LayerProductionClient initialData={data} pagination={result} />
+                </Suspense>
             </div>
         </div>
     );

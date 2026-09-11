@@ -1,5 +1,6 @@
 // app/users/page.tsx
 
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import FeatherIcon from "feather-icons-react";
 import { UserClient } from "./UserClient";
@@ -47,7 +48,9 @@ export default async function UserPage({ searchParams }: UserPageProps) {
                         Kamu tidak memiliki akses ke halaman ini.
                     </div>
                 ) : (
-                    <UserClient initialData={data} pagination={result} />
+                    <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-gray-500">Loading...</div>}>
+                        <UserClient initialData={data} pagination={result} />
+                    </Suspense>
                 )}
             </div>
         </div>

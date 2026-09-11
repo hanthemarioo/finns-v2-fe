@@ -1,5 +1,6 @@
 // app/production/growers/page.tsx
 
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import FeatherIcon from "feather-icons-react";
 import { GrowerProductionClient } from "./GrowerProductionClient";
@@ -42,8 +43,9 @@ export default async function GrowerProduuctionPage({ searchParams }: GrowerProd
                     </div>
                 </div>
 
-                {/* Lempar data ke Client Component */}
-                <GrowerProductionClient initialData={data} pagination={result} />
+                <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-gray-500">Loading...</div>}>
+                    <GrowerProductionClient initialData={data} pagination={result} />
+                </Suspense>
             </div>
         </div>
     );

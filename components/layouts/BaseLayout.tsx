@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
@@ -11,7 +11,9 @@ export default function BaseLayout({ children }: { children: React.ReactNode }) 
 
     return (
         <>
-            <NavigationProgress />
+            <Suspense fallback={null}>
+                <NavigationProgress />
+            </Suspense>
             <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
             <Sidebar isOpen={isSidebarOpen} />
             <div className="min-h-screen bg-gray-100 p-2 mt-4 sm:ml-64">

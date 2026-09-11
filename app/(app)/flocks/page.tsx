@@ -1,5 +1,6 @@
 // app/flocks/page.tsx
 
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { FlockClient } from "./FlockClient";
 import FeatherIcon from "feather-icons-react";
@@ -42,8 +43,9 @@ export default async function FlockPage({ searchParams }: FlockPageProps) {
                     </div>
                 </div>
 
-                {/* Lempar data ke Client Component */}
-                <FlockClient initialData={data} pagination={result} />
+                <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-gray-500">Loading...</div>}>
+                    <FlockClient initialData={data} pagination={result} />
+                </Suspense>
             </div>
         </div>
     );
